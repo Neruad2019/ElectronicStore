@@ -1,0 +1,43 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+    <div class="col-6 offset-3">
+
+        <div class="alert alert-success alert-dismissible fade show" th:if="${#request.getParameter('success')}!=null" role="alert">
+        Registration done successfully!
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+        <div class="alert alert-danger alert-dismissible fade show" th:if="${#request.getParameter('error')}!=null" role="alert">
+            Registration failed!
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form th:action="@{'/register'}" method="post">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email address:</label>
+                <input type="email" name="user_email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email address">
+            </div>
+
+            <div class="form-group">
+                <label for="exampleInputPassword1">Password:</label>
+                <input type="password" name="user_password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword2">Retype Password:</label>
+                <input type="password" name="re_user_password" class="form-control" id="exampleInputPassword2" placeholder="Retype Password">
+            </div>
+
+            <div class="form-group">
+                <label for="exampleInputFullName">FullName:</label>
+                <input type="text" name="user_full_name" class="form-control" id="exampleInputFullName" placeholder="FullName">
+            </div>
+
+            <button type="submit" class="btn btn-primary float-right">Sign Up</button>
+
+
+        </form>
+    </div></div>

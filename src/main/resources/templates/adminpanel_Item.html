@@ -1,0 +1,180 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/adminpanelmain.html">
+
+<div layout:fragment="adminpanel_content">
+    <div class="card">
+        <div class="list-group-item list-group-item-action bg-dark text-white">ITEMS
+            <button type="button" class="btn btn-success btn-sm float-right" data-toggle="modal"
+                    data-target="#Modal1" data-whatever="Name of City...">ADD NEW
+            </button>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">NAME</th>
+                    <th scope="col">BRAND</th>
+                    <th scope="col">PRISE</th>
+                    <th scope="col">AMOUNT</th>
+                    <th scope="col">OPERATIONS</th>
+                </tr>
+                </thead>
+                <tbody th:each="item: ${Items}">
+                <th scope="row" th:text="${item.id}">
+                </th>
+                <td data-th-text="${item.name}">
+                </td>
+                <td data-th-text="${item.brand.name+', '+item.brand.countries.name}">
+                </td>
+                <td data-th-text="${'$'+item.price}">
+                </td>
+                <td data-th-text="${item.amount}">
+                </td>
+                <td>
+                    <form th:action="@{'/adminpanelItemsDetails/'+${item.id}}" th:id="edit+${item.id}" method="post"></form>
+                    <button type="button submit" th:form="edit+${item.id}" class="btn btn-primary btn-sm" >EDIT
+                    </button>
+<!--                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"-->
+<!--                            th:data-target="'#ModalItem'+${item.id}" data-whatever="item edit">EDIT-->
+<!--                    </button>-->
+                    <div class="modal fade" th:id="'ModalItem'+${item.id}" tabindex="-1" role="dialog"
+                         th:aria-labelledby="'ModalItemLabel'+${item.id}"
+                         aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" th:id="'ModalItemLabel'+${item.id}">Edit Item</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form th:action="@{/edit}" method="post" th:id="'edit'+${item.id}">
+                                        <div class="form-group">
+                                            <input type="hidden" name="id" th:value="${item.id}">
+                                            <label class="col-form-label">NAME:</label>
+                                            <input type="text" class="form-control" name="item_name"
+                                                   th:value="${item.name}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-form-label">DESCRIPTION:</label>
+                                            <textarea class="form-control" name="description"
+                                                      th:text="${item.description}"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-form-label">PRICE:</label>
+                                            <input type="text" class="form-control" name="price"
+                                                   th:value="${item.price}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-form-label">AMOUNT:</label>
+                                            <input type="text" class="form-control" name="amount"
+                                                   th:value="${item.amount}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-form-label">RATING STARS:</label>
+                                            <input type="text" class="form-control" name="stars"
+                                                   th:value="${item.stars}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-form-label">PICTURE URL:</label>
+                                            <input type="text" class="form-control" name="pictureUrl"
+                                                   th:value="${item.largePicURL}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-form-label">BRAND:</label>
+                                            <select class="form-control" name="brand">
+                                                <option th:each="brand:${Item_Brands}" th:text="${brand.name}"
+                                                        th:value="${brand.id}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group form-check">
+                                            <input type="checkbox" class="form-check-input" name="inTop"
+                                                   id="exampleCheck2" th:checked="(${item.inTopPage})">
+                                            <label class="form-check-label" for="exampleCheck2">IN TOP</label>
+                                        </div>
+                                        <hr>
+                                    </form>
+                                    <form th:action="@{/delete}" method="post" th:id="'delete'+${item.id}">
+                                        <input type="hidden" name="id" th:value="${item.id}">
+                                    </form>
+                                    <div class="nav justify-content-end">
+                                        <button type="submit" th:form="'edit'+${item.id}"
+                                                class="btn btn-success btn-sm">EDIT
+                                        </button>
+                                        <button type="submit button" th:form="'delete'+${item.id}"
+                                                class="btn btn-danger ml-sm-1 btn-sm">DELETE
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal fade" id="Modal1" tabindex="-1" role="dialog" aria-labelledby="ModalLabel1"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel1">Add New Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/additem}" method="post">
+                        <div class="form-group">
+                            <label class="col-form-label">NAME:</label>
+                            <input type="text" class="form-control" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">DESCRIPTION:</label>
+                            <textarea class="form-control" name="description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">PRICE:</label>
+                            <input type="text" class="form-control" name="price">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">AMOUNT:</label>
+                            <input type="text" class="form-control" name="amount">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">RATING STARS:</label>
+                            <input type="text" class="form-control" name="stars">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">PICTURE URL:</label>
+                            <input type="text" class="form-control" name="pictureUrl">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">BRAND:</label>
+                            <select class="form-control" name="brand">
+                                <option th:each="brand:${Item_Brands}" th:text="${brand.name}" th:value="${brand.id}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" name="inTop" id="exampleCheck1">
+                            <label class="form-check-label" for="exampleCheck1">IN TOP</label>
+                        </div>
+                        <hr>
+                        <div class="nav justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-sm">ADD</button>
+                            <button type="button" class="btn btn-secondary ml-sm-1 btn-sm"
+                                    data-dismiss="modal">CANCEL
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

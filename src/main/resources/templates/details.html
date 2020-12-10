@@ -1,0 +1,26 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+
+    <div class="card mb-0">
+        <img th:src="@{${item.largePicURL}}" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title" th:text="${item.name}"></h5>
+            <h5 class="card-title" th:text="${item.price}+' $'"></h5>
+            <p class="card-text" th:text="${item.description}"></p>
+            <p class="font-weight-bold">Brand: <a th:href="@{/search(brand=${item.brand.id})}" class="text-decoration-none" th:text="${item.brand.getName()}"></a>, <a href="#" class="text-decoration-none" th:text="${item.brand.countries.getName()}"></a></p>
+        </div>
+        <div class="card-footer">
+            <link rel="stylesheet"
+                  th:href="@{'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'}">
+
+            <span class="fa fa-star checked" th:each="i : ${#numbers.sequence( 1,item.getStars(),1)}"></span>
+            <style>
+                .checked {
+                    color: orange;
+                }
+            </style>
+        </div>
+    </div>
+</div>

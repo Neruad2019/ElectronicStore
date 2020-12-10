@@ -1,0 +1,51 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+    <div class="col-6 offset-3">
+        <h1 class="justify-content-center mb-5 offset-4">Profile</h1>
+        <div class="alert alert-success alert-dismissible fade show" th:if="${#request.getParameter('success')}!=null" role="alert">
+            Edit done successfully!
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" th:if="${#request.getParameter('error')}!=null" role="alert">
+            Edit failed!
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form th:action="@{'/updateprofile'}" class="mb-5" method="post">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email address:</label>
+                <input type="email" name="user_email" class="form-control" required id="exampleInputEmail1" th:value="${currentUser.getEmail()}">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputFullName">FullName:</label>
+                <input type="text" class="form-control" name="user_full_name" id="exampleInputFullName" th:value="${currentUser.getFullName()}">
+            </div>
+            <input type="hidden" name="id" th:value="${currentUser.getId()}">
+            <button type="submit" class="btn btn-primary float-right">Update Profile</button>
+
+        </form>
+        <form th:action="@{'/updatepassword'}" method="post">
+            <input type="hidden" name="id" th:value="${currentUser.getId()}">
+            <div class="form-group">
+                <label for="exampleInputPassword1">Old Password:</label>
+                <input type="password" name="old_password" class="form-control" required id="exampleInputPassword1" placeholder="Old Password">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword2">New Password:</label>
+                <input type="password" name="new_password" class="form-control" required id="exampleInputPassword2" placeholder="New Password">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword3">Retype New Password:</label>
+                <input type="password" name="re_new_password" class="form-control" required id="exampleInputPassword3" placeholder="Retype New Password">
+            </div>
+
+            <button type="submit" class="btn btn-primary float-right">Update Password</button>
+
+
+        </form>
+    </div></div>

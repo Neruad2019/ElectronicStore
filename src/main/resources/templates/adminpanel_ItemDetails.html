@@ -1,0 +1,96 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/adminpanelmain.html">
+
+<div class="col-7" layout:fragment="adminpanel_content">
+
+    <form th:action="@{/edit}" method="post" th:id="'edit'+${item.id}">
+        <div class="form-group">
+            <input type="hidden" name="id" th:value="${item.id}">
+            <label class="col-form-label">NAME:</label>
+            <input type="text" class="form-control" name="item_name"
+                   th:value="${item.name}">
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">DESCRIPTION:</label>
+            <textarea class="form-control" name="description"
+                      th:text="${item.description}"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">PRICE:</label>
+            <input type="text" class="form-control" name="price"
+                   th:value="${item.price}">
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">AMOUNT:</label>
+            <input type="text" class="form-control" name="amount"
+                   th:value="${item.amount}">
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">RATING STARS:</label>
+            <input type="text" class="form-control" name="stars"
+                   th:value="${item.stars}">
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">PICTURE URL:</label>
+            <input type="text" class="form-control" name="pictureUrl"
+                   th:value="${item.largePicURL}">
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">BRAND:</label>
+            <select class="form-control" name="brand">
+                <option th:each="brand:${Item_Brands}" th:text="${brand.name}"
+                        th:value="${brand.id}"></option>
+            </select>
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" name="inTop"
+                   id="exampleCheck2" th:checked="(${item.inTopPage})">
+            <label class="form-check-label" for="exampleCheck2">IN TOP</label>
+        </div>
+        <div class="form-group">
+            <table class="table table-striped">
+                <tbody>
+                <tr th:each="item_cat:${item.categories}">
+                    <form th:action="@{'/removecategory'}" method="post" th:id="deletecategory+${item_cat.id}">
+                        <input type="hidden" th:value="${item.id}" name="item_id">
+                        <input type="hidden" th:value="${item_cat.id}" name="category_id">
+                        <td th:text="${item_cat.name}"></td>
+                        <td width="10%">
+                            <button th:form="deletecategory+${item_cat.id}" type="submit" class="btn btn-danger btn-sm">-</button>
+                        </td>
+                    </form>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="form-group">
+            <table class="table table-striped">
+                <tbody>
+                <tr th:each="cat:${Categories}" th:if="${!item.categories.contains(cat)}">
+                    <form th:action="@{'/assigncategory'}" method="post" th:id="category+${cat.id}">
+                        <input type="hidden" th:value="${item.id}" name="item_id">
+                        <input type="hidden" th:value="${cat.id}" name="category_id">
+                        <td th:text="${cat.name}"></td>
+                        <td width="10%">
+                            <button th:form="category+${cat.id}" type="submit" class="btn btn-success btn-sm">+</button>
+                        </td>
+                    </form>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <hr>
+    </form>
+    <form th:action="@{/delete}" method="post" th:id="'delete'+${item.id}">
+        <input type="hidden" name="id" th:value="${item.id}">
+    </form>
+    <div class="nav justify-content-end">
+        <button type="submit" th:form="'edit'+${item.id}"
+                class="btn btn-success btn-sm">EDIT
+        </button>
+        <button type="submit button" th:form="'delete'+${item.id}"
+                class="btn btn-danger ml-sm-1 btn-sm">DELETE
+        </button>
+    </div>
+
+</div>

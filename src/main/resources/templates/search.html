@@ -1,0 +1,80 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+
+    <form th:action="@{/search}" method="get">
+        <div class="form-row d-flex justify-content-between">
+            <div class="col-md-3 mb-3">
+                <label>Name:</label>
+                <input type="text" class="form-control" name="search_value" th:value="${search_value!=null?search_value:''}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>BRAND:</label>
+                <select class="form-control" name="brand">
+                    <option th:text="All" th:value="-1"></option>
+                    <option th:each="brand:${Item_Brands}" th:text="${brand.name}" th:value="${brand.id}" th:selected="${brand_id!=null&&brand_id==brand.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label>Price From:</label>
+                <input type="text" class="form-control" name="price_from">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label>Price To:</label>
+                <input type="text" class="form-control" name="price_to">
+            </div>
+            <div class="col-md-1 mb-3">
+                <label style="height:23px"></label>
+                <button type="submit" class="btn btn-success bd-highlight px-4" th:text="#{label.search}"></button>
+            </div>
+        </div>
+        <div class="form-row d-flex justify-content-between">
+            <div class="col-md-6 mb-3">
+                <p class="h4">Search Results:</p>
+            </div>
+            <div class="col-md-2 mb-3">
+            </div>
+            <div class="col-md-2 mb-3 d-flex">
+                <label class="ml-2">Order by price:</label>
+            </div>
+            <div class="col-md-1 mb-3 btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary" style="padding-left: 9px; padding-right: 8px">
+                    <button type="submit" class="btn btn-secondary p-0" name="asc" value="true">Asc</button>
+                </label>
+                <label class="btn btn-secondary" style="padding-left: 8px; padding-right: 9px">
+                    <button type="submit" class="btn btn-secondary p-0" name="desc" value="true">Desc</button>
+                </label>
+            </div>
+
+        </div>
+
+    </form>
+
+    <div class="row row-cols-1 row-cols-md-3 mt-3">
+
+        <div class="card mb-0" th:each="item:${Items}">
+            <img th:src="@{${item.largePicURL}}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <a th:href="@{'/details/'+${item.id}}" class="text-reset text-decoration-none"><h5 class="card-title"
+                                                                                                   th:text="${item.name}"></h5>
+                </a>
+                <h5 class="card-title" th:text="${item.price}+' $'"></h5>
+                <p class="card-text" th:text="${item.description}"></p>
+                <p class="font-weight-bold">Brand: <a th:href="@{/search(brand=${item.brand.id})}" class="text-decoration-none" th:text="${item.brand.getName()}"></a>, <a href="#" class="text-decoration-none" th:text="${item.brand.countries.getName()}"></a></p>
+            </div>
+            <div class="card-footer">
+                <link rel="stylesheet"
+                      th:href="@{'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'}">
+
+                <span class="fa fa-star checked" th:each="i : ${#numbers.sequence( 1,item.getStars(),1)}"></span>
+                <style>
+                    .checked {
+                        color: orange;
+                    }
+                </style>
+            </div>
+        </div>
+    </div>
+
+</div>
