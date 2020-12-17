@@ -1,13 +1,7 @@
 package kz.springboot.springbootdemo.services.Impl;
 
-import kz.springboot.springbootdemo.entities.Brands;
-import kz.springboot.springbootdemo.entities.Categories;
-import kz.springboot.springbootdemo.entities.Countries;
-import kz.springboot.springbootdemo.entities.Items;
-import kz.springboot.springbootdemo.repositories.BrandRepository;
-import kz.springboot.springbootdemo.repositories.CategoryRepository;
-import kz.springboot.springbootdemo.repositories.CountryRepository;
-import kz.springboot.springbootdemo.repositories.ItemRepository;
+import kz.springboot.springbootdemo.entities.*;
+import kz.springboot.springbootdemo.repositories.*;
 import kz.springboot.springbootdemo.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +14,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private Purchase_historyRepository purchase_historyRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private CountryRepository countryRepository;
@@ -156,5 +156,40 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void saveCategory(Categories categories) {
         categoryRepository.save(categories);
+    }
+
+    @Override
+    public List<Purchase_history> getAllPurchases() {
+        return purchase_historyRepository.getAllByOrderByIdDesc();
+    }
+
+    @Override
+    public void addPurchase(Purchase_history purchase_history) {
+        purchase_historyRepository.save(purchase_history);
+    }
+
+    @Override
+    public List<Comments> getAllCommentsbyItem(Items item) {
+        return commentRepository.getAllByItemEqualsOrderByIdDesc(item);
+    }
+
+    @Override
+    public void addComment(Comments comment) {
+        commentRepository.save(comment);
+    }
+
+    @Override
+    public void deleteComment(Long id) {
+        commentRepository.deleteById(id);
+    }
+
+    @Override
+    public void saveComment(Comments comment) {
+        commentRepository.save(comment);
+    }
+
+    @Override
+    public Comments getOneComment(Long id) {
+        return commentRepository.getOne(id);
     }
 }

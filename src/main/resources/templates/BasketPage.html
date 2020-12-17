@@ -1,0 +1,99 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+    <div class="card">
+        <div class="card-header">
+            <h5>Basket</h5>
+        </div>
+        <div class="card-body">
+
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col" width="10%"></th>
+                </tr>
+                </thead>
+
+                <tbody th:each="item:${BasketItems}">
+                <tr>
+                <th scope="row" data-th-text="${item.getName()}">
+                </th>
+                <td th:data-th-text="${item.getPrice()}">
+                </td>
+                <td th:data-th-text="${BasketItems_Amount.get(BasketItems.indexOf(item))}">
+                </td>
+                <td>
+                    <button type="submit" th:form="itemplus+${item.id}" class="btn btn-success btn-sm">+</button>
+                    <button type="submit" th:form="itemminus+${item.id}" class="btn btn-danger btn-sm">-</button>
+                    <form th:id="itemplus+${item.id}" th:action="@{'/tobasket'}" method="post">
+                        <input type="hidden" name="item_id" th:value="${item.id}">
+                    </form>
+                    <form th:id="itemminus+${item.id}" th:action="@{'/decreasebasket'}" method="post">
+                        <input type="hidden" name="item_id" th:value="${item.id}">
+                    </form>
+                </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div class="card-footer text-muted d-flex justify-content-between">
+            <div>TOTAL: <h5 th:text="${Total}+'$'"></h5></div>
+            <div>
+                <button type="button" class="btn btn-dark btn-sm my-2 bd-highlight" data-toggle="modal"
+                        data-target="#Modal1" data-whatever="Name of City...">CHECK IN
+                </button>
+
+                <button type="submit" th:form="clear" class="btn btn-danger btn-sm my-2 ml-1 bd-highlight">CLEAR BASKET</button>
+                <form th:id="clear" th:action="@{'/clearbasket'}" method="post"></form>
+            </div>
+        </div>
+        <div class="modal fade" id="Modal1" tabindex="-1" role="dialog" aria-labelledby="ModalLabel1"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel1">Checkout</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form th:action="@{/comfirmpurchase}" method="post">
+                            <div class="form-group">
+                                <label class="col-form-label">FULL NAME:</label>
+                                <input type="text" class="form-control" name="fullname" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-form-label">CARD NUMBER:</label>
+                                <input type="text" class="form-control" name="card_number" required>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col">
+                                    <label class="col-form-label">Expiration (MM/YY):</label>
+                                    <input type="text" class="form-control" name="expiration" required>
+                                </div>
+                                <div class="col">
+                                    <label class="col-form-label">CVV:</label>
+                                    <input type="text" class="form-control" name="cvv" required>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="nav justify-content-end">
+                                <button type="submit" class="btn btn-primary btn-sm">ADD</button>
+                                <button type="button" class="btn btn-secondary ml-sm-1 btn-sm"
+                                        data-dismiss="modal">CANCEL
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

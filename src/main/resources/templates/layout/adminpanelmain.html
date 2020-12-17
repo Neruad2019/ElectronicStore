@@ -36,11 +36,13 @@
                     <button type="button submit" sec:authorize="hasRole('ROLE_ADMIN')" form="tobrand" class="list-group-item list-group-item-action">Brands</button>
                     <button type="button submit" sec:authorize="hasRole('ROLE_ADMIN')" form="tocountry" class="list-group-item list-group-item-action">Countries</button>
                     <button type="button submit" sec:authorize="hasRole('ROLE_ADMIN')" form="touser" class="list-group-item list-group-item-action">Users</button>
+                    <button type="button submit" sec:authorize="hasRole('ROLE_ADMIN')" form="topurchase" class="list-group-item list-group-item-action">Purchases History</button>
                     <form id="toitem" th:action="@{'/adminpanelItems'}" method="post"></form>
                     <form id="tocategory" th:action="@{'/adminpanelCategories'}" method="post"></form>
                     <form id="tobrand" th:action="@{'/adminpanelBrands'}" method="post"></form>
                     <form id="tocountry" th:action="@{'/adminpanelCountries'}" method="post"></form>
                     <form id="touser" th:action="@{'/adminpanelUsers'}" method="post"></form>
+                    <form id="topurchase" th:action="@{'/adminpanelPurchases'}" method="post"></form>
                 </div>
 
             </div>

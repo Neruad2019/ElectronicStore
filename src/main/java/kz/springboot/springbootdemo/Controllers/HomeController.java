@@ -1,9 +1,16 @@
 package kz.springboot.springbootdemo.Controllers;
 
 import kz.springboot.springbootdemo.entities.*;
+import kz.springboot.springbootdemo.repositories.PictureRepository;
 import kz.springboot.springbootdemo.services.ItemService;
+import kz.springboot.springbootdemo.services.PictureService;
 import kz.springboot.springbootdemo.services.UserService;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,11 +19,22 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 
 @Controller
 public class HomeController {
@@ -25,7 +43,22 @@ public class HomeController {
     private ItemService itemService;
 
     @Autowired
+    private PictureService pictureService;
+
+    @Autowired
     private UserService userService;
+
+    @Value("${file.avatar.viewPath}")
+    private String viewPath;
+    @Value("${file.avatar.uploadPath}")
+    private String uploadPath;
+    @Value("${file.avatar.defaultPicture}")
+    private String defaultPicture;
+
+    @Value("${file.itemphoto.viewPath}")
+    private String itemphotoviewPath;
+    @Value("${file.itemphoto.uploadPath}")
+    private String itemphotouploadPath;
 
     @GetMapping(value = "/")
     public String index(Model model) {
@@ -80,6 +113,7 @@ public class HomeController {
             model.addAttribute("Users",userss);
             return "adminpanel_User";
         }
+        System.out.println("Err3------------------------------------");
         return "redirect:/register?error";
     }
 
@@ -97,6 +131,130 @@ public class HomeController {
         }
         return "redirect:/profile?error";
     }
+
+    @PostMapping(value = "/updateavatar")
+    @PreAuthorize("isAuthenticated()")
+    public String updateAvatar(@RequestParam(name = "user_ava")MultipartFile file){
+        if(file.getContentType().equals("image/jpeg") || file.getContentType().equals("image.png")){
+        try {
+            Users currentUser=getUserData();
+            String picName= DigestUtils.sha1Hex("avatar_"+currentUser.getId()+"_Picture");
+            byte[] bytes=file.getBytes();
+            Path path= Paths.get(uploadPath+picName+".jpg");
+            Files.write(path,bytes);
+            currentUser.setPictureURL(picName);
+            userService.saveUser(currentUser);
+            return "redirect:/profile?success";
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }}
+        return "redirect:/profile?error";
+    }
+    @GetMapping(value = "/viewphoto/{url}",produces = {MediaType.IMAGE_JPEG_VALUE})
+    @PreAuthorize("isAuthenticated()")
+    public @ResponseBody byte[] viewProfilePhoto(@PathVariable(name = "url") String url) throws IOException{
+        String pictureURL=viewPath+defaultPicture;
+        if(url!=null){
+            pictureURL=viewPath+url+".jpg";
+        }
+        InputStream in;
+        try {
+            ClassPathResource resource=new ClassPathResource(pictureURL);
+            in=resource.getInputStream();
+        }catch (Exception ex){
+            ClassPathResource resource=new ClassPathResource(viewPath+defaultPicture);
+            in=resource.getInputStream();
+            ex.printStackTrace();
+        }
+        return IOUtils.toByteArray(in);
+    }
+
+    @PostMapping(value = "/uploaditemphoto")
+    @PreAuthorize("isAuthenticated()")
+    public String uploaditemphoto(Model model,
+                                  @RequestParam(name = "item_picture")MultipartFile file,
+                                  @RequestParam(name = "item_id") Long id){
+        List<Items> shopItems = itemService.getAllItems();
+        model.addAttribute("Items", shopItems);
+        List<Brands> brands = itemService.getAllBrands();
+        model.addAttribute("Item_Brands", brands);
+        List<Categories> categoriesList = itemService.getAllCategories();
+        model.addAttribute("Categories", categoriesList);
+        if(file.getContentType().equals("image/jpeg") || file.getContentType().equals("image.png")){
+            try {
+                List<Pictures> pictures=pictureService.getAll();
+                Items item=itemService.getItem(id);
+                long picNum;
+                if(pictures.isEmpty()){
+                    picNum=0;
+                }
+                else {
+                    picNum=pictures.get(pictures.size()-1).getId()+1;
+                }
+                String picName= DigestUtils.sha1Hex("item_"+item.getId()+"_Picture"+picNum);
+                byte[] bytes=file.getBytes();
+                Path path= Paths.get(itemphotouploadPath+picName+".jpg");
+                Files.write(path,bytes);
+
+                Pictures picture=new Pictures();
+                picture.setAddedDate(new Date(Calendar.getInstance().getTimeInMillis()));
+                picture.setUrl(picName);
+                picture.setItem(item);
+
+                pictureService.savePicture(picture);
+
+                List<Pictures> picturess=pictureService.getAllpicturesbByItem(item);
+                model.addAttribute("Pictures",picturess);
+                model.addAttribute("item", item);
+                return "adminpanel_ItemDetails";
+
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }}
+        System.out.println("ERR------------------------------");
+        Items item=itemService.getItem(id);
+        model.addAttribute("item", item);
+        List<Pictures> picturess=pictureService.getAllpicturesbByItem(item);
+        model.addAttribute("Pictures",picturess);
+        return "adminpanel_ItemDetails";
+    }
+    @GetMapping(value = "/viewitemphoto/{url}",produces = {MediaType.IMAGE_JPEG_VALUE})
+    //@PreAuthorize("isAuthenticated()")
+    public @ResponseBody byte[] viewitemphoto(@PathVariable(name = "url") String url) throws IOException{
+        String pictureURL=viewPath+defaultPicture;
+        if(url!=null){
+            pictureURL=itemphotoviewPath+url+".jpg";
+        }
+        InputStream in;
+        try {
+            ClassPathResource resource=new ClassPathResource(pictureURL);
+            in=resource.getInputStream();
+        }catch (Exception ex){
+            ClassPathResource resource=new ClassPathResource(viewPath+defaultPicture);
+            in=resource.getInputStream();
+            ex.printStackTrace();
+        }
+        return IOUtils.toByteArray(in);
+    }
+    @PostMapping(value = "/deleteitemphoto")
+    public String deleteitemphoto(Model model,
+                                 @RequestParam(name = "item_id") Long item_id,
+                                 @RequestParam(name = "picture_id") Long picture_id) {
+        pictureService.deletePicture(picture_id);
+
+        Items items = itemService.getItem(item_id);
+        model.addAttribute("item", items);
+        List<Items> shopItems = itemService.getAllItems();
+        model.addAttribute("Items", shopItems);
+        List<Brands> brands = itemService.getAllBrands();
+        model.addAttribute("Item_Brands", brands);
+        List<Categories> categoriesList = itemService.getAllCategories();
+        model.addAttribute("Categories", categoriesList);
+        List<Pictures> pictures=pictureService.getAllpicturesbByItem(items);
+        model.addAttribute("Pictures",pictures);
+        return "adminpanel_ItemDetails";
+    }
+
 
     @PostMapping(value = "/updatepassword")
     public String updatepassword(@RequestParam(name = "old_password") String old_password,
@@ -219,8 +377,156 @@ public class HomeController {
     @PreAuthorize("isAuthenticated()")
     public String profile(Model model) {
         model.addAttribute("currentUser", getUserData());
+        List<Brands> brands = itemService.getAllBrands();
+        model.addAttribute("Item_Brands", brands);
         return "user_profile";
     }
+    @GetMapping(value = "/basket")
+    public String basket(Model model,
+                         HttpServletRequest request, HttpServletResponse response) {
+        model.addAttribute("currentUser", getUserData());
+        List<Brands> brands = itemService.getAllBrands();
+        model.addAttribute("Item_Brands", brands);
+        Cookie[] cookies = request.getCookies();
+        ArrayList<Items> basketitems=new ArrayList<>();
+        ArrayList<Integer> basketitems_amount=new ArrayList<>();
+        double total=0;
+        if(cookies !=null) {
+            for(Cookie c: cookies) {
+                if(isNumeric(c.getName()) && isNumeric(c.getValue())) {
+                   basketitems.add(itemService.getItem(Long.parseLong(c.getName())));
+                   basketitems_amount.add(Integer.parseInt(c.getValue()));
+                   total+=itemService.getItem(Long.parseLong(c.getName())).getPrice()*
+                           Integer.parseInt(c.getValue());
+                }
+            }
+        }
+        model.addAttribute("BasketItems", basketitems);
+        model.addAttribute("BasketItems_Amount", basketitems_amount);
+        model.addAttribute("Total", total);
+        return "BasketPage";
+    }
+
+
+    @PostMapping(value = "/tobasket")
+    public String tobasket(@RequestParam(name = "item_id") Long item_id,
+                           HttpServletRequest request, HttpServletResponse response){
+        boolean access=true;
+        Cookie[] cookies = request.getCookies();
+        if(cookies !=null) {
+            for(Cookie c: cookies) {
+                if(isNumeric(c.getName()) && String.valueOf(item_id).equals(c.getName())) {
+                    c.setValue(String.valueOf(Long.parseLong(c.getValue())+1));
+                    response.addCookie(c);
+                    access=false;
+                    break;
+                }
+            }
+            if(access){
+                response.addCookie(new Cookie(String.valueOf(item_id), "1"));
+            }
+        }
+        return "redirect:/basket";
+    }
+
+    @PostMapping(value = "/decreasebasket")
+    public String decreasebasket(@RequestParam(name = "item_id") Long item_id,
+                           HttpServletRequest request, HttpServletResponse response){
+        Cookie[] cookies = request.getCookies();
+        if(cookies !=null) {
+            for(Cookie c: cookies) {
+                if(isNumeric(c.getName()) && String.valueOf(item_id).equals(c.getName())) {
+                    if(c.getValue().equals("1")){
+                        c.setMaxAge(0);
+                    }
+                    else{
+                        c.setValue(String.valueOf(Long.parseLong(c.getValue())-1));
+                    }
+                    response.addCookie(c);
+                    break;
+                }
+            }
+        }
+        return "redirect:/basket";
+    }
+
+    @PostMapping(value = "/clearbasket")
+    public String clearbasket(HttpServletRequest request, HttpServletResponse response){
+        Cookie[] cookies = request.getCookies();
+        if(cookies !=null) {
+            for(Cookie c: cookies) {
+                if(isNumeric(c.getName()) && isNumeric(c.getValue())) {
+                    c.setMaxAge(0);
+                    response.addCookie(c);
+                }
+            }
+        }
+        return "redirect:/basket";
+    }
+
+    @PostMapping(value = "/comfirmpurchase")
+    public String comfirmpurchase(HttpServletRequest request, HttpServletResponse response){
+        Cookie[] cookies = request.getCookies();
+        if(cookies !=null) {
+            for(Cookie c: cookies) {
+                if(isNumeric(c.getName()) && isNumeric(c.getValue())) {
+                    Purchase_history purchase_history=new Purchase_history();
+                    purchase_history.setItem_id(Long.parseLong(c.getName()));
+                    purchase_history.setAmount(Long.parseLong(c.getValue()));
+                    purchase_history.setAddedDate(new Date(Calendar.getInstance().getTimeInMillis()));
+                    itemService.addPurchase(purchase_history);
+                    c.setMaxAge(0);
+                    response.addCookie(c);
+                }
+            }
+        }
+        return "redirect:/basket";
+    }
+
+    private static boolean isNumeric(final String str) {
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @PostMapping(value = "/addcomment")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR','ROLE_USER')")
+    public String addcomment(@RequestParam(name = "item_id", defaultValue = "") Long item_id,
+                             @RequestParam(name = "user_id", defaultValue = "") Long user_id,
+                             @RequestParam(name = "comment", defaultValue = "") String comment){
+        Comments comments = new Comments();
+        comments.setAuthor(userService.getUserById(user_id));
+        comments.setComment(comment);
+        comments.setItem(itemService.getItem(item_id));
+        comments.setAddedDate(new Timestamp(System.currentTimeMillis()));
+        itemService.addComment(comments);
+        return "redirect:/details/"+item_id;
+    }
+    @PostMapping(value = "/deletecomment")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR','ROLE_USER')")
+    public String deletecomment(@RequestParam(name = "comment_id", defaultValue = "") Long comment_id,
+                             @RequestParam(name = "item_id", defaultValue = "") Long item_id){
+        itemService.deleteComment(comment_id);
+        return "redirect:/details/"+item_id;
+    }
+    @PostMapping(value = "/editcomment")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR','ROLE_USER')")
+    public String editcomment(@RequestParam(name = "comment_id", defaultValue = "") Long comment_id,
+                                @RequestParam(name = "item_id", defaultValue = "") Long item_id,
+                              @RequestParam(name = "comment", defaultValue = "") String comment){
+        Comments comments=itemService.getOneComment(comment_id);
+        comments.setComment(comment);
+        itemService.saveComment(comments);
+        return "redirect:/details/"+item_id;
+    }
+
+
 
     private Users getUserData() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -283,6 +589,8 @@ public class HomeController {
         model.addAttribute("Item_Brands", brands);
         List<Categories> categoriesList = itemService.getAllCategories();
         model.addAttribute("Categories", categoriesList);
+        List<Pictures> pictures=pictureService.getAllpicturesbByItem(items);
+        model.addAttribute("Pictures",pictures);
         return "adminpanel_ItemDetails";
     }
 
@@ -371,17 +679,32 @@ public class HomeController {
         model.addAttribute("Users",users);
         return "adminpanel_User";
     }
+    @PostMapping(value = "/adminpanelPurchases")
+    public String adminpanelPurchases(Model model) {
+        List<Purchase_history> purchase_histories=itemService.getAllPurchases();
+        model.addAttribute("Purchases",purchase_histories);
+        ArrayList<Items> items=new ArrayList<>();
+        for (Purchase_history p:purchase_histories) {
+            items.add(itemService.getItem(p.getItem_id()));
+        }
+        model.addAttribute("Items",items);
+        return "adminpanel_Purchases";
+    }
 
 
 
     @GetMapping(value = "/details/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
+    //@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR','ROLE_USER')")
     public String details(Model model, @PathVariable(name = "id") Long id) {
         Items item = itemService.getItem(id);
         model.addAttribute("item", item);
         List<Brands> brands = itemService.getAllBrands();
         model.addAttribute("currentUser", getUserData());
         model.addAttribute("Item_Brands", brands);
+        List<Pictures> picturess=pictureService.getAllpicturesbByItem(item);
+        model.addAttribute("Pictures",picturess);
+        List<Comments> comments=itemService.getAllCommentsbyItem(item);
+        model.addAttribute("Comments",comments);
         return "details";
     }
 

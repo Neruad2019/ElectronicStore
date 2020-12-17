@@ -2,8 +2,8 @@
       xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
 
 <div layout:fragment="site_content">
+
     <div class="col-6 offset-3">
-        <h1 class="justify-content-center mb-5 offset-4">Profile</h1>
         <div class="alert alert-success alert-dismissible fade show" th:if="${#request.getParameter('success')}!=null" role="alert">
             Edit done successfully!
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -16,6 +16,23 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
+
+        <!--<h1 class="justify-content-center mb-3 offset-4">Profile</h1>-->
+        <div class="row">
+            <div class="offset-3">
+            <img th:src="@{'/viewphoto/'+${currentUser.getPictureURL()}}" alt="ошибка" class="my-3" style="width: 250px;">
+            </div>
+        </div>
+        <form th:action="@{'/updateavatar'}" class="mb-5" method="post" enctype="multipart/form-data">
+
+            <div class="custom-file form-group">
+                <input type="file" class="custom-file-input" id="customFile" name="user_ava">
+                <label class="custom-file-label" for="customFile">Choose file</label>
+            </div>
+            <button type="submit" class="btn btn-primary float-right mt-3">Update Picture</button>
+
+        </form>
+
         <form th:action="@{'/updateprofile'}" class="mb-5" method="post">
             <div class="form-group">
                 <label for="exampleInputEmail1">Email address:</label>

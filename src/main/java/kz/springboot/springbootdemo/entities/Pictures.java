@@ -6,31 +6,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "pictures")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users {
+public class Pictures {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
     private Long id;
 
-    @Column(name="password")
-    private String password;
+    @Column(name="added_date")
+    private Date addedDate;
 
-    @Column(name="email")
-    private String email;
+    @Column(name="url")
+    private String url;
 
-    @Column(name="full_name")
-    private String fullName;
-
-    @Column(name="pictureURL")
-    private String pictureURL;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    private List<Roles> roles;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Items item;
 }

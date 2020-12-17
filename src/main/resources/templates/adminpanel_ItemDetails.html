@@ -80,6 +80,39 @@
             </table>
         </div>
         <hr>
+        <div class="form-group">
+            <h4>Pictures</h4>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Picture</th>
+                    <th scope="col">URL</th>
+                    <th scope="col">Added Date</th>
+                    <th scope="col" width="10%">
+                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
+                                data-target="#Modal1">+</button></th>
+                </tr>
+                </thead>
+                <tbody th:each="picture: ${Pictures}">
+                <th scope="row">
+                    <img th:src="@{'/viewitemphoto/'+${picture.url}}" alt="ошибка" style="width: 50px;">
+                </th>
+                <td data-th-text="${picture.url}">
+                </td>
+                <td data-th-text="${picture.addedDate}">
+                </td>
+                <td>
+                    <button th:form="deleteitemphoto+${picture.id}" type="submit" class="btn btn-danger btn-sm">-</button>
+                    <form th:action="@{'/deleteitemphoto'}" method="post" th:id="deleteitemphoto+${picture.id}">
+                        <input type="hidden" th:value="${item.id}" name="item_id">
+                        <input type="hidden" th:value="${picture.id}" name="picture_id">
+                    </form>
+                </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
     </form>
     <form th:action="@{/delete}" method="post" th:id="'delete'+${item.id}">
         <input type="hidden" name="id" th:value="${item.id}">
@@ -91,6 +124,37 @@
         <button type="submit button" th:form="'delete'+${item.id}"
                 class="btn btn-danger ml-sm-1 btn-sm">DELETE
         </button>
+    </div>
+
+
+    <div class="modal fade" id="Modal1" tabindex="-1" role="dialog" aria-labelledby="ModalLabel1"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel1">Add New Pictures</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{'/uploaditemphoto'}" method="post" enctype="multipart/form-data">
+                        <div class="custom-file form-group">
+                            <input type="hidden" name="item_id" th:value="${item.id}">
+                            <input type="file" class="custom-file-input" id="customFile" name="item_picture">
+                            <label class="custom-file-label" for="customFile">Choose file</label>
+                        </div>
+                        <hr>
+                        <div class="nav justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-sm">ADD</button>
+                            <button type="button" class="btn btn-secondary ml-sm-1 btn-sm"
+                                    data-dismiss="modal">CANCEL
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
