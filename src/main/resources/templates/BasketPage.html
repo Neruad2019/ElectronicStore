@@ -4,16 +4,16 @@
 <div layout:fragment="site_content">
     <div class="card">
         <div class="card-header">
-            <h5>Basket</h5>
+            <h5 th:text="#{label.basket1}"></h5>
         </div>
         <div class="card-body">
 
             <table class="table table-hover">
                 <thead>
                 <tr>
-                    <th scope="col">Item</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Amount</th>
+                    <th scope="col" th:text="#{label.basket2}"></th>
+                    <th scope="col" th:text="#{label.basket3}"></th>
+                    <th scope="col" th:text="#{label.basket4}"></th>
                     <th scope="col" width="10%"></th>
                 </tr>
                 </thead>
@@ -45,10 +45,10 @@
             <div>TOTAL: <h5 th:text="${Total}+'$'"></h5></div>
             <div>
                 <button type="button" class="btn btn-dark btn-sm my-2 bd-highlight" data-toggle="modal"
-                        data-target="#Modal1" data-whatever="Name of City...">CHECK IN
+                        data-target="#Modal1" data-whatever="Name of City..." th:text="#{label.basket6}">
                 </button>
 
-                <button type="submit" th:form="clear" class="btn btn-danger btn-sm my-2 ml-1 bd-highlight">CLEAR BASKET</button>
+                <button type="submit" th:form="clear" class="btn btn-danger btn-sm my-2 ml-1 bd-highlight" th:text="#{label.basket7}"></button>
                 <form th:id="clear" th:action="@{'/clearbasket'}" method="post"></form>
             </div>
         </div>

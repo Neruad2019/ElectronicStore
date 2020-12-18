@@ -6,22 +6,22 @@
     <form th:action="@{/search}" method="get">
         <div class="form-row d-flex justify-content-between">
             <div class="col-md-3 mb-3">
-                <label>Name:</label>
+                <label th:text="#{label.searchatt1}+':'"></label>
                 <input type="text" class="form-control" name="search_value" th:value="${search_value!=null?search_value:''}">
             </div>
             <div class="col-md-3 mb-3">
-                <label>BRAND:</label>
+                <label th:text="#{label.brand}"></label>
                 <select class="form-control" name="brand">
-                    <option th:text="All" th:value="-1"></option>
+                    <option th:text="#{label.all}" th:value="-1"></option>
                     <option th:each="brand:${Item_Brands}" th:text="${brand.name}" th:value="${brand.id}" th:selected="${brand_id!=null&&brand_id==brand.id}"></option>
                 </select>
             </div>
             <div class="col-md-2 mb-3">
-                <label>Price From:</label>
+                <label th:text="#{label.searchatt3}+':'"></label>
                 <input type="text" class="form-control" name="price_from">
             </div>
             <div class="col-md-2 mb-3">
-                <label>Price To:</label>
+                <label th:text="#{label.searchatt4}+':'"></label>
                 <input type="text" class="form-control" name="price_to">
             </div>
             <div class="col-md-1 mb-3">
@@ -31,12 +31,12 @@
         </div>
         <div class="form-row d-flex justify-content-between">
             <div class="col-md-6 mb-3">
-                <p class="h4">Search Results:</p>
+                <p class="h4" th:text="#{label.searchatt6}+':'"></p>
             </div>
             <div class="col-md-2 mb-3">
             </div>
             <div class="col-md-2 mb-3 d-flex">
-                <label class="ml-2">Order by price:</label>
+                <label class="ml-2" th:text="#{label.searchatt5}+':'"></label>
             </div>
             <div class="col-md-1 mb-3 btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-secondary" style="padding-left: 9px; padding-right: 8px">
