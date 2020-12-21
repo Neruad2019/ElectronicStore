@@ -211,7 +211,6 @@ public class HomeController {
             }catch (Exception ex){
                 ex.printStackTrace();
             }}
-        System.out.println("ERR------------------------------");
         Items item=itemService.getItem(id);
         model.addAttribute("item", item);
         List<Pictures> picturess=pictureService.getAllpicturesbByItem(item);
